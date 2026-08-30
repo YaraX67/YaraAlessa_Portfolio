@@ -64,7 +64,10 @@
   updateNavTint();
 
   // Active nav link: highlights the section currently in view, and
-  // updates instantly on click instead of waiting for scroll to catch up
+  // updates instantly on click instead of waiting for scroll to catch up.
+  // Driven entirely off scroll position (not IntersectionObserver) so
+  // there's a single source of truth instead of two systems racing
+  // to set the active class on the same scroll event.
   var navLinks = document.querySelectorAll('.navlinks a');
   var navSections = [];
   navLinks.forEach(function(link){
@@ -78,35 +81,52 @@
     navLinks.forEach(function(l){ l.classList.remove('active'); });
     if(link){ link.classList.add('active'); }
   }
+  var pendingClick = false;
   navLinks.forEach(function(link){
-    link.addEventListener('click', function(){ setActiveLink(link); });
+    link.addEventListener('click', function(){
+      setActiveLink(link);
+      pendingClick = true;
+    });
   });
-  if(navSections.length && 'IntersectionObserver' in window){
-    var navHeight = navEl ? navEl.offsetHeight : 0;
-    var sectionObserver = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if(entry.isIntersecting){
-          var match = navSections.filter(function(item){ return item.section === entry.target; })[0];
-          if(match){ setActiveLink(match.link); }
+  if(navSections.length){
+    var lastLink = navSections[navSections.length - 1].link;
+    var navTicking = false;
+    function computeActiveLink(){
+      var doc = document.documentElement;
+      if(window.innerHeight + window.scrollY >= doc.scrollHeight - 2){
+        return lastLink;
+      }
+      var line = (navEl ? navEl.offsetHeight : 0) + 10;
+      var current = null;
+      navSections.forEach(function(item){
+        if(item.section.getBoundingClientRect().top - line <= 0){
+          current = item.link;
         }
       });
-    }, { rootMargin: '-' + (navHeight + 10) + 'px 0px -60% 0px', threshold: 0 });
-    navSections.forEach(function(item){ sectionObserver.observe(item.section); });
-
-    // The last section (footer) can be too short to ever cross the
-    // rootMargin band above, so force it active once actually at the
-    // bottom of the page rather than leaving the previous link lit.
-    var lastLink = navSections[navSections.length - 1].link;
-    function checkBottomOfPage(){
-      var doc = document.documentElement;
-      var atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
-      if(atBottom){
-        setActiveLink(lastLink);
-        requestAnimationFrame(function(){ setActiveLink(lastLink); });
-      }
+      return current;
     }
-    window.addEventListener('scroll', checkBottomOfPage, {passive:true});
-    checkBottomOfPage();
+    function updateActiveNav(){
+      navTicking = false;
+      var next = computeActiveLink();
+      if(next === null){
+        // Nothing above the first section - unless a click just fired
+        // and its smooth-scroll hasn't reached the target's line yet.
+        // Keep the clicked link lit through that animation instead of
+        // blanking it out on the animation's early, near-zero frames.
+        if(pendingClick){ return; }
+        setActiveLink(null);
+        return;
+      }
+      pendingClick = false;
+      setActiveLink(next);
+    }
+    window.addEventListener('scroll', function(){
+      if(!navTicking){
+        navTicking = true;
+        requestAnimationFrame(updateActiveNav);
+      }
+    }, {passive:true});
+    updateActiveNav();
   }
 
   // Rotating tagline (typewriter)
