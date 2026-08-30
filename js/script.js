@@ -55,12 +55,66 @@
   window.addEventListener('scroll', updateProgress, {passive:true});
   updateProgress();
 
+  // Nav bar tint once the page has scrolled
+  var navEl = document.querySelector('nav');
+  function updateNavTint(){
+    if(navEl){ navEl.classList.toggle('scrolled', window.scrollY > 10); }
+  }
+  window.addEventListener('scroll', updateNavTint, {passive:true});
+  updateNavTint();
+
+  // Active nav link: highlights the section currently in view, and
+  // updates instantly on click instead of waiting for scroll to catch up
+  var navLinks = document.querySelectorAll('.navlinks a');
+  var navSections = [];
+  navLinks.forEach(function(link){
+    var id = link.getAttribute('href');
+    if(id && id.charAt(0) === '#'){
+      var section = document.querySelector(id);
+      if(section){ navSections.push({ link: link, section: section }); }
+    }
+  });
+  function setActiveLink(link){
+    navLinks.forEach(function(l){ l.classList.remove('active'); });
+    if(link){ link.classList.add('active'); }
+  }
+  navLinks.forEach(function(link){
+    link.addEventListener('click', function(){ setActiveLink(link); });
+  });
+  if(navSections.length && 'IntersectionObserver' in window){
+    var navHeight = navEl ? navEl.offsetHeight : 0;
+    var sectionObserver = new IntersectionObserver(function(entries){
+      entries.forEach(function(entry){
+        if(entry.isIntersecting){
+          var match = navSections.filter(function(item){ return item.section === entry.target; })[0];
+          if(match){ setActiveLink(match.link); }
+        }
+      });
+    }, { rootMargin: '-' + (navHeight + 10) + 'px 0px -60% 0px', threshold: 0 });
+    navSections.forEach(function(item){ sectionObserver.observe(item.section); });
+
+    // The last section (footer) can be too short to ever cross the
+    // rootMargin band above, so force it active once actually at the
+    // bottom of the page rather than leaving the previous link lit.
+    var lastLink = navSections[navSections.length - 1].link;
+    function checkBottomOfPage(){
+      var doc = document.documentElement;
+      var atBottom = window.innerHeight + window.scrollY >= doc.scrollHeight - 2;
+      if(atBottom){
+        setActiveLink(lastLink);
+        requestAnimationFrame(function(){ setActiveLink(lastLink); });
+      }
+    }
+    window.addEventListener('scroll', checkBottomOfPage, {passive:true});
+    checkBottomOfPage();
+  }
+
   // Rotating tagline (typewriter)
   var taglineEl = document.getElementById('taglineText');
   var taglinePhrases = [
-    'I turn complex insurance problems into simple digital products.',
-    'I turn ambiguity into decisions, and decisions into products.',
-    'I bridge business needs and technical delivery.'
+    'Turning complex insurance problems into simple digital products.',
+    'Turning ambiguity into decisions, and decisions into products.',
+    'Bridging business needs and technical delivery.'
   ];
   var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
   if(taglineEl && !reduceMotion){
