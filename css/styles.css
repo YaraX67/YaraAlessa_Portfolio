@@ -118,6 +118,9 @@
   @media (prefers-reduced-motion:reduce){.tagline-cursor{animation:none;}}
 
   .hero-grid{display:grid;grid-template-columns:1.15fr 1fr;gap:48px;align-items:start;}
+  .hero-grid.photo-hidden{grid-template-columns:1fr;}
+  .hero-grid.photo-hidden .monogram-card{display:none;}
+  .hero-grid.photo-hidden .hero-text p{max-width:760px;}
   .hero-text p{font-size:15.5px;color:#2c2c2c;margin:0 0 16px;max-width:560px;}
   .hero-text p:last-of-type{margin-bottom:26px;}
 
