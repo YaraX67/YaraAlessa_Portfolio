@@ -43,6 +43,18 @@
     revealTargets.forEach(function(el){ io.observe(el); });
   }
 
+  // Scroll progress bar
+  var progressBar = document.getElementById('scrollProgress');
+  function updateProgress(){
+    var h = document.documentElement;
+    var scrolled = h.scrollTop;
+    var max = h.scrollHeight - h.clientHeight;
+    var pct = max > 0 ? (scrolled / max) * 100 : 0;
+    if(progressBar){ progressBar.style.width = pct + '%'; }
+  }
+  window.addEventListener('scroll', updateProgress, {passive:true});
+  updateProgress();
+
   // Rotating tagline (typewriter)
   var taglineEl = document.getElementById('taglineText');
   var taglinePhrases = [
