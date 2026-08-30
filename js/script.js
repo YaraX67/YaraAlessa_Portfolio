@@ -48,6 +48,10 @@
       });
     });
   });
+  // Default to the "Live" filter on load - a tighter, higher-signal
+  // set of finished projects beats sorting through all 11 cold.
+  var liveFilterBtn = document.querySelector('.filter-pill[data-filter="Live"]');
+  if(liveFilterBtn){ liveFilterBtn.click(); }
 
   // Scroll reveal
   var revealTargets = document.querySelectorAll('.p-card, .stat-note, .collab-col, .think-card');

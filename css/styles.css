@@ -36,9 +36,9 @@
     height:3px;width:0%;
     background:var(--purple-deep);
   }
-  nav .wrap{display:flex;align-items:center;justify-content:space-between;padding:14px 32px;}
+  nav .wrap{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:14px 32px;}
   .logo-box{
-    width:44px;height:44px;
+    width:44px;height:44px;flex-shrink:0;
     background:var(--purple);
     border:2.5px solid var(--ink);
     border-radius:9px;
@@ -48,6 +48,15 @@
   }
   .navlinks{display:flex;gap:28px;}
   .navlinks a{text-decoration:none;font-size:12.5px;font-weight:800;letter-spacing:1px;text-transform:uppercase;color:var(--ink);}
+  .nav-cv{
+    display:inline-flex;align-items:center;gap:6px;flex-shrink:0;
+    background:var(--purple);border:2px solid var(--ink);border-radius:8px;
+    padding:8px 14px;font-weight:900;font-size:11px;letter-spacing:0.6px;text-transform:uppercase;
+    text-decoration:none;color:var(--ink);
+    box-shadow:3px 4px 0 var(--ink);
+    transition:transform .15s, box-shadow .15s;
+  }
+  .nav-cv:hover{transform:translate(-1px,-1px);box-shadow:4px 5px 0 var(--ink);}
   .navlinks a:hover{color:var(--purple-deep);}
   .navlinks a.active{color:var(--purple-deep);}
 
@@ -127,10 +136,12 @@
     border-radius:7px;
     overflow:hidden;
   }
-  .photo-frame img{
+  .photo-placeholder{
     width:100%;height:100%;
-    object-fit:cover;
-    display:block;
+    display:flex;align-items:center;justify-content:center;
+    background:var(--purple-pale);
+    font-size:96px;font-weight:900;color:var(--ink);
+    letter-spacing:2px;
   }
   .pin{
     position:absolute;top:-11px;left:50%;transform:translateX(-50%);
@@ -389,7 +400,8 @@
   .btn-row .btn:hover{box-shadow:5px 6px 0 var(--ink);}
 
   @media (max-width:760px){
-    nav .wrap{padding:12px 18px;gap:14px;}
+    nav .wrap{padding:12px 18px;gap:10px;}
+    .nav-cv{padding:7px 10px;font-size:10px;}
     .hero-grid{grid-template-columns:1fr;}
     .monogram-card{margin:0 auto;transform:none;width:300px;}
     .monogram-card .tape{display:none;}
