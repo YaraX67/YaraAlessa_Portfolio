@@ -1,15 +1,36 @@
   function openModal(id){
-    document.getElementById(id).classList.add('open');
+    var modal = document.getElementById(id);
+    modal._opener = document.activeElement;
+    modal.classList.add('open');
     document.body.style.overflow='hidden';
+    var closeBtn = modal.querySelector('.modal-close');
+    if(closeBtn){ closeBtn.focus(); }
   }
   function closeModal(id){
-    document.getElementById(id).classList.remove('open');
+    var modal = document.getElementById(id);
+    modal.classList.remove('open');
     document.body.style.overflow='';
+    if(modal._opener && typeof modal._opener.focus === 'function'){
+      modal._opener.focus();
+    }
   }
   document.addEventListener('keydown', function(e){
     if(e.key==='Escape'){
-      document.querySelectorAll('.modal-overlay.open').forEach(function(m){ m.classList.remove('open'); });
-      document.body.style.overflow='';
+      document.querySelectorAll('.modal-overlay.open').forEach(function(m){ closeModal(m.id); });
+      return;
+    }
+    if(e.key==='Tab'){
+      var openModalEl = document.querySelector('.modal-overlay.open');
+      if(!openModalEl){ return; }
+      var card = openModalEl.querySelector('.modal-card');
+      var focusable = card.querySelectorAll('button, a[href]');
+      if(!focusable.length){ return; }
+      var first = focusable[0], last = focusable[focusable.length - 1];
+      if(e.shiftKey && document.activeElement === first){
+        e.preventDefault(); last.focus();
+      } else if(!e.shiftKey && document.activeElement === last){
+        e.preventDefault(); first.focus();
+      }
     }
   });
 

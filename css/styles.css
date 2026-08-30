@@ -9,6 +9,9 @@
   }
   *{box-sizing:border-box;}
   html{scroll-behavior:smooth;}
+  a:focus-visible, button:focus-visible, [tabindex]:focus-visible{
+    outline:3px solid var(--purple-deep);outline-offset:2px;
+  }
   body{
     margin:0;
     font-family:Helvetica, Arial, sans-serif;
