@@ -55,6 +55,70 @@
   window.addEventListener('scroll', updateProgress, {passive:true});
   updateProgress();
 
+  // Active nav link: highlights the current section's link in purple
+  // text (nav background always stays white). Driven off scroll
+  // position rather than IntersectionObserver so there's one source
+  // of truth, plus a pendingClick flag so a just-clicked link stays
+  // lit through its own scroll animation instead of flickering off
+  // on the animation's near-zero-scrollY opening frames.
+  var navEl = document.querySelector('nav');
+  var navLinks = document.querySelectorAll('.navlinks a');
+  var navSections = [];
+  navLinks.forEach(function(link){
+    var id = link.getAttribute('href');
+    if(id && id.charAt(0) === '#'){
+      var section = document.querySelector(id);
+      if(section){ navSections.push({ link: link, section: section }); }
+    }
+  });
+  function setActiveLink(link){
+    navLinks.forEach(function(l){ l.classList.remove('active'); });
+    if(link){ link.classList.add('active'); }
+  }
+  var pendingClick = false;
+  navLinks.forEach(function(link){
+    link.addEventListener('click', function(){
+      setActiveLink(link);
+      pendingClick = true;
+    });
+  });
+  if(navSections.length){
+    var lastLink = navSections[navSections.length - 1].link;
+    var navTicking = false;
+    function computeActiveLink(){
+      var doc = document.documentElement;
+      if(window.innerHeight + window.scrollY >= doc.scrollHeight - 2){
+        return lastLink;
+      }
+      var line = (navEl ? navEl.offsetHeight : 0) + 10;
+      var current = null;
+      navSections.forEach(function(item){
+        if(item.section.getBoundingClientRect().top - line <= 0){
+          current = item.link;
+        }
+      });
+      return current;
+    }
+    function updateActiveNav(){
+      navTicking = false;
+      var next = computeActiveLink();
+      if(next === null){
+        if(pendingClick){ return; }
+        setActiveLink(null);
+        return;
+      }
+      pendingClick = false;
+      setActiveLink(next);
+    }
+    window.addEventListener('scroll', function(){
+      if(!navTicking){
+        navTicking = true;
+        requestAnimationFrame(updateActiveNav);
+      }
+    }, {passive:true});
+    updateActiveNav();
+  }
+
   // Rotating tagline (typewriter)
   var taglineEl = document.getElementById('taglineText');
   var taglinePhrases = [
