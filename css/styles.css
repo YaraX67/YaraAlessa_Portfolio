@@ -194,6 +194,7 @@
   .p-card:nth-child(8){transform:rotate(1.4deg);}
   .p-card:nth-child(9){transform:rotate(-0.9deg);}
   .p-card:nth-child(10){transform:rotate(1.3deg);}
+  .p-card:nth-child(11){transform:rotate(-1.1deg);}
   .p-card:hover{transform:rotate(0deg) translateY(-4px);box-shadow:7px 11px 20px rgba(0,0,0,0.22);}
   .p-card.placeholder{cursor:default;border-style:dashed;box-shadow:none;}
   .p-card.placeholder:hover{transform:rotate(1.6deg);}
